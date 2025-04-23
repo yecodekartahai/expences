@@ -14,6 +14,7 @@ This project blends functionality with minimal design, offering an intuitive int
 
 💰 Investment Plan Recommendations
 — Smart suggestions based on user data to promote financial growth.
+<img width="1280" alt="Screenshot 2025-04-14 at 8 48 37 PM" src="https://github.com/user-attachments/assets/a825f750-01f7-44d1-a6a9-f9789ad82f45" />
 
 📱 Responsive UI/UX
 — Fully optimized for desktops, tablets, and smartphones.
