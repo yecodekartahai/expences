@@ -1,3 +1,7 @@
+DEMO VIDEO HERE
+<a>https://drive.google.com/file/d/1j32rivTFBM_fpCjfooABzr9tLjqbex1y/view?usp=sharing<a>
+
+
 🌟 Smart Expense Tracker
 
 🧠 AI-Assisted Daily, Monthly & Investment Expense Manager
