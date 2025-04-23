@@ -1,0 +1,1230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="FinTrack - Smart Financial Tracking">
+    <meta name="keywords" content="finance, tracking, budget, expenses">
+    <title>FinTrack - Smart Financial Tracking</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #5f7cfd;
+            --primary-dark: #395cf9;
+            --secondary: #38b000;
+            --accent: #ff6b6b;
+            --dark: #2b2d42;
+            --light: #f8f9fa;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            color: var(--dark);
+            overflow-x: hidden;
+        }
+
+        .page-wrapper {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        header {
+            background: linear-gradient(90deg, #3c5fff 0%, #1943fe 100%);
+            color: white;
+            padding: 1.5rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('https://i.pinimg.com/736x/9c/4b/6b/9c4b6b4d40106a83de688c963f27ca88.jpg');
+            background-size: cover;
+            background-position: center;
+            opacity: 0.1;
+            z-index: 0;
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 1;
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+        }
+
+        .logo h1 {
+            font-size: 2.2rem;
+            margin: 0;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+        }
+
+        .logo i {
+            margin-right: 10px;
+            font-size: 2rem;
+        }
+
+        .tagline {
+            font-style: italic;
+            opacity: 0.9;
+            margin-top: 5px;
+            font-size: 1.1rem;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .auth-btn {
+            padding: 10px 20px;
+            background-color: var(--primary);
+            color: white;
+            border: 1 px ;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            text-decoration: none; /* Ensure no underline for links */
+        }
+
+        .auth-btn i {
+            margin-right: 5px;
+        }
+
+        .auth-btn:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .auth-btn.active {
+            background-color: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .header-btn {
+            background-color: rgba(255, 255, 255, 0.15);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .header-btn:hover {
+            background-color: rgba(255, 255, 255, 0.25);
+            transform: translateY(-2px);
+        }
+
+        .header-btn.active {
+            background-color: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        main {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .auth-container {
+            width: 100%;
+            max-width: 900px;
+            position: relative;
+            margin-bottom: 3rem;
+        }
+
+        .tabs {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 10px; /* Reduced margin */
+            gap: 10px; /* Added gap to control space between buttons */
+            flex-wrap: wrap;
+        }
+
+        .tab {
+            padding: 12px 20px; /* Adjusted padding */
+            background-color: rgba(255, 255, 255, 0.5);
+            color: var(--dark);
+            border: none;
+            border-radius: 8px 8px 0 0;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin: 0 2px; /* Reduced margin */
+        }
+
+        .tab.active {
+            background-color: white;
+            color: var(--primary);
+            box-shadow: 0 -5px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .tab:hover:not(.active) {
+            background-color: rgba(255, 255, 255, 0.8);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        .container {
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            border-top: 4px solid var(--primary); /* Solid color border */
+        }
+
+        .container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .container h2 {
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
+            color: var(--primary);
+            text-align: center;
+            position: relative;
+        }
+
+        .container h2::after {
+            content: "";
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 50px;
+            height: 3px;
+            background: var(--primary);
+            border-radius: 2px;
+        }
+
+        .input-group {
+            position: relative;
+            margin-bottom: 1.2rem;
+        }
+
+        .input-group i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #aaa;
+            transition: color 0.3s;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 15px 15px 15px 45px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        .input-group input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.15);
+            outline: none;
+        }
+
+        .input-group input:focus + i {
+            color: var(--primary);
+        }
+
+        .options {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1.2rem;
+            font-size: 0.9rem;
+            flex-wrap: wrap;
+        }
+
+        .remember {
+            display: flex;
+            align-items: center;
+        }
+
+        .remember input {
+            margin-right: 5px;
+        }
+
+        .forgot {
+            color: var(--primary);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .forgot:hover {
+            color: var(--primary-dark);
+            text-decoration: underline;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 15px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .btn i {
+            margin-right: 8px;
+        }
+
+        .btn:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(67, 97, 238, 0.3);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .social-login {
+            margin-top: 2rem;
+            text-align: center;
+        }
+
+        .social-login p {
+            margin-bottom: 1rem;
+            color: #777;
+            position: relative;
+        }
+
+        .social-login p::before,
+        .social-login p::after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            width: 40%;
+            height: 1px;
+            background-color: #ddd;
+        }
+
+        .social-login p::before {
+            left: 0;
+        }
+
+        .social-login p::after {
+            right: 0;
+        }
+
+        .social-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .social-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            color: var(--dark);
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .social-btn:hover {
+            transform: translateY(-3px);
+        }
+
+        .social-btn.facebook {
+            background-color: #3b5998;
+            color: white;
+        }
+
+        .social-btn.google {
+            background-color: #db4a39;
+            color: white;
+        }
+
+        .social-btn.apple {
+            background-color: #000;
+            color: white;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+            width: 100%;
+            margin-top: 2rem;
+        }
+
+        @media (min-width: 768px) {
+            .content-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .info-card {
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            transition: transform 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .info-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .info-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 5px;
+            height: 100%;
+            background: var(--primary);
+        }
+
+        .info-card h3 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .info-card h3 i {
+            margin-right: 10px;
+            background: var(--primary);
+            color: white;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+
+        .info-card p {
+            margin: 0.8rem 0;
+            line-height: 1.6;
+        }
+
+        .feature-list {
+            list-style: none;
+            padding: 0;
+            margin: 1rem 0;
+        }
+
+        .feature-list li {
+            padding: 0.5rem 0;
+            display: flex;
+            align-items: center;
+        }
+
+        .feature-list li i {
+            color: var(--secondary);
+            margin-right: 10px;
+        }
+
+        .image-section {
+            width: 100%;
+            margin: 3rem 0;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        @media (min-width: 768px) {
+            .image-section {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        .image-card {
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            transition: transform 0.3s ease;
+        }
+
+        .image-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .image-container {
+            width: 100%;
+            height: 200px;
+            overflow: hidden;
+        }
+
+        .image-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .image-card:hover .image-container img {
+            transform: scale(1.05);
+        }
+
+        .image-info {
+            padding: 1.5rem;
+        }
+
+        .image-info h3 {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+        }
+
+        .image-info p {
+            color: #777;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            margin-bottom: 1rem;
+        }
+
+        .image-info a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            font-size: 0.9rem;
+            transition: color 0.3s;
+        }
+
+        .image-info a:hover {
+            color: var(--primary-dark);
+        }
+
+        .image-info a i {
+            margin-left: 5px;
+            font-size: 0.8rem;
+        }
+
+        .hero-banner {
+            width: 100%;
+            position: relative;
+            height: 400px;
+            margin-bottom: 3rem;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .hero-banner img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center;
+        }
+
+        .hero-content {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            padding: 2rem;
+            background: linear-gradient(0deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 100%);
+            color: white;
+        }
+
+        .hero-content h2 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+        }
+
+        .hero-content p {
+            font-size: 1.2rem;
+            max-width: 600px;
+            line-height: 1.5;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+        }
+
+        .protected-content {
+            display: none;
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            width: 100%;
+            max-width: 800px;
+            margin-top: 2rem;
+            text-align: center;
+        }
+
+        .protected-content h2 {
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            font-size: 2rem;
+        }
+
+        .dashboard-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .dashboard-btn {
+            padding: 1rem;
+            background-color: white;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none; /* Ensure no underline for links */
+        }
+
+        .dashboard-btn i {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .dashboard-btn:hover {
+            background-color: var(--primary);
+            color: white;
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(67, 97, 238, 0.3);
+        }
+
+        .dashboard-btn a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        .testim-container {
+            margin-top: 3rem;
+            width: 100%;
+            text-align: center;
+        }
+
+        .testim-title {
+            font-size: 1.8rem;
+            color: var(--primary);
+            margin-bottom: 2rem;
+            position: relative;
+        }
+
+        .testim-title::after {
+            content: "";
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 3px;
+            background: var(--primary);
+            border-radius: 2px;
+        }
+
+        .testimonials {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+
+        @media (min-width: 768px) {
+            .testimonials {
+                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            }
+        }
+
+        .testimonial {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            padding: 2rem;
+            position: relative;
+        }
+
+        .testimonial::before {
+            content: "“";
+            position: absolute;
+            top: 10px;
+            left: 20px;
+            font-size: 4rem;
+            color: rgba(67, 97, 238, 0.1);
+            font-family: Georgia, serif;
+        }
+
+        .testimonial p {
+            font-style: italic;
+            margin-bottom: 1rem;
+            line-height: 1.6;
+        }
+
+        .testimonial-author {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+        }
+
+        .author-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            margin-right: 1rem;
+            background-color: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .author-avatar i {
+            font-size: 1.5rem;
+            color: #777;
+        }
+
+        .author-info h4 {
+            margin: 0;
+            color: var(--dark);
+        }
+
+        .author-info span {
+            font-size: 0.8rem;
+            color: #777;
+        }
+
+        footer {
+            background-color: var(--dark);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            margin-top: 3rem;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .footer-links a {
+            color: white;
+            text-decoration: none;
+            font-size: 1rem;
+            transition: color 0.3s;
+        }
+
+        .footer-links a:hover {
+            color: var(--primary);
+        }
+
+        .footer-social {
+            display: flex;
+            gap: 10px;
+            margin-top: 1rem;
+        }
+
+        .footer-social a {
+            color: white;
+            font-size: 1.2rem;
+            transition: color 0.3s;
+        }
+
+        .footer-social a:hover {
+            color: var(--primary);
+        }
+
+        .footer-text {
+            font-size: 0.9rem;
+            margin-top: 1rem;
+            opacity: 0.8;
+        }
+
+        /* Enhanced CSS for Login Section */
+        .container.login {
+            background-color: rgba(255, 255, 255, 0.9);
+            border-top: 4px solid var(--primary);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 3rem;
+            border-radius: 20px;
+        }
+
+        .container.login h2 {
+            color: var(--primary);
+            margin-bottom: 2rem;
+            font-size: 2rem;
+        }
+
+        .container.login .input-group input {
+            border: 2px solid #ccc;
+            border-radius: 10px;
+            padding: 1rem 1.5rem;
+            font-size: 1rem;
+        }
+
+        .container.login .input-group input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+        }
+
+        .container.login .btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 1rem 2rem;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .container.login .btn:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(67, 97, 238, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="page-wrapper">
+        <header>
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-chart-line"></i>
+                    <h1>FinTrack</h1>
+                </div>
+                <div class="tagline">Your Smart Financial Companion</div>
+                <div class="header-actions">
+                    <a href="#" class="auth-btn header-btn active" id="loginBtn" aria-label="Login"><i class="fas fa-sign-in-alt"></i> Login</a>
+                    <a href="#" class="auth-btn header-btn" id="signupBtn" aria-label="Sign Up"><i class="fas fa-user-plus"></i> Sign Up</a>
+                    <a href="#" class="auth-btn header-btn" id="logoutBtn" aria-label="Logout" style="display: none;"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                </div>
+            </div>
+        </header>
+        <main>
+            <section class="hero-banner">
+                <img src="https://i.pinimg.com/736x/17/96/0f/17960f79f5ee14e27da8e6d38d418970.jpg" alt="Hero Banner">
+                <div class="hero-content">
+                    <h2>Welcome to FinTrack</h2>
+                    <p>Manage your finances effortlessly with our smart tracking tools.</p>
+                </div>
+            </section>
+            <section class="auth-container">
+                <div class="tabs">
+                    <button class="tab active auth-btn" id="loginTab">Login</button>
+                    <button class="tab auth-btn" id="signupTab">Sign Up</button>
+                    <button class="tab auth-btn" id="dashboardTab">Dashboard</button>
+                </div>
+                <div class="tab-content active login" id="login-tab">
+                    <form id="loginForm" class="container">
+                        <h2>Login to Your Account</h2>
+                        <div class="input-group">
+                            <i class="fas fa-envelope"></i>
+                            <input type="email" placeholder="Email" id="loginEmail" required>
+                        </div>
+                        <div class="input-group">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" placeholder="Password" id="loginPassword" required>
+                        </div>
+                        <div class="options">
+                            <div class="remember">
+                                <input type="checkbox" id="remember">
+                                <label for="remember">Remember me</label>
+                            </div>
+                            <a href="#" class="forgot">Forgot Password?</a>
+                        </div>
+                        <button type="submit" class="btn auth-btn"><i class="fas fa-sign-in-alt"></i> Login</button>
+                        <div class="social-login">
+                            <p>Or login with</p>
+                            <div class="social-buttons">
+                                <div class="social-btn facebook"><i class="fab fa-facebook-f"></i></div>
+                                <div class="social-btn google"><i class="fab fa-google"></i></div>
+                                <div class="social-btn apple"><i class="fab fa-apple"></i></div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="tab-content" id="signup-tab">
+                    <form id="signupForm" class="container">
+                        <h2>Create Your Account</h2>
+                        <div class="input-group">
+                            <i class="fas fa-user"></i>
+                            <input type="text" placeholder="Full Name" required>
+                        </div>
+                        <div class="input-group">
+                            <i class="fas fa-envelope"></i>
+                            <input type="email" placeholder="Email" id="signupEmail" required>
+                        </div>
+                        <div class="input-group">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" placeholder="Password" id="signupPassword" required>
+                        </div>
+                        <div class="input-group">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" placeholder="Confirm Password" required>
+                        </div>
+                        <button type="submit" class="btn auth-btn"><i class="fas fa-user-plus"></i> Sign Up</button>
+                        <div class="social-login">
+                            <p>Or sign up with</p>
+                            <div class="social-buttons">
+                                <div class="social-btn facebook"><i class="fab fa-facebook-f"></i></div>
+                                <div class="social-btn google"><i class="fab fa-google"></i></div>
+                                <div class="social-btn apple"><i class="fab fa-apple"></i></div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="tab-content" id="dashboard-tab">
+                    <div class="container">
+                        <h2>Welcome to Your Dashboard</h2>
+                        <div class="dashboard-actions">
+                            <a href="dailytracker.html" class="dashboard-btn">
+                                <i class="fas fa-wallet"></i>
+                                Daily Tracker
+                            </a>
+                            <a href="monthlytracker.html" class="dashboard-btn">
+                                <i class="fas fa-chart-line"></i>
+                                Monthly Tracker
+                            </a>
+                            <a href="bypass.html" class="dashboard-btn">
+                                <i class="fas fa-cog"></i>
+                                Accounts Center
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <section class="content-grid">
+                <div class="info-card">
+                    <h3><i class="fas fa-shield-alt"></i> Secure Transactions</h3>
+                    <p>Ensure your financial data is protected with our advanced security measures.</p>
+                    <ul class="feature-list">
+                        <li><i class="fas fa-check"></i> End-to-end encryption</li>
+                        <li><i class="fas fa-check"></i> Two-factor authentication</li>
+                        <li><i class="fas fa-check"></i> Regular security audits</li>
+                    </ul>
+                </div>
+                <div class="info-card">
+                    <h3><i class="fas fa-chart-bar"></i> Smart Analytics</h3>
+                    <p>Get insights into your spending habits and make informed financial decisions.</p>
+                    <ul class="feature-list">
+                        <li><i class="fas fa-check"></i> Detailed spending reports</li>
+                        <li><i class="fas fa-check"></i> Budget tracking</li>
+                        <li><i class="fas fa-check"></i> Personalized financial advice</li>
+                    </ul>
+                </div>
+                <div class="info-card">
+                    <h3><i class="fas fa-globe"></i> Global Access</h3>
+                    <p>Access your financial data from anywhere in the world with our mobile app.</p>
+                    <ul class="feature-list">
+                        <li><i class="fas fa-check"></i> Real-time updates</li>
+                        <li><i class="fas fa-check"></i> Multi-currency support</li>
+                        <li><i class="fas fa-check"></i> Offline access</li>
+                    </ul>
+                </div>
+                <div class="info-card">
+                    <h3><i class="fas fa-user-friends"></i> Community Support</h3>
+                    <p>Join our community of users and get support from financial experts.</p>
+                    <ul class="feature-list">
+                        <li><i class="fas fa-check"></i> 24/7 customer support</li>
+                        <li><i class="fas fa-check"></i> Financial forums</li>
+                        <li><i class="fas fa-check"></i> Exclusive webinars</li>
+                    </ul>
+                </div>
+            </section>
+            <section class="image-section">
+                <div class="image-card">
+                    <div class="image-container">
+                        <img src="https://i.pinimg.com/736x/54/76/a6/5476a632a178db6a4c0a036f301aa1d3.jpg" alt="Image 1">
+                    </div>
+                    <div class="image-info">
+                        <h3>Daily Budegt Tracking</h3>
+                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus lacinia odio vitae vestibulum vestibulum.</p>
+                        <a href="dailytracker.html">To Learn More Sign Up<i class="fas fa-arrow-right"></i></a>
+                    </div>
+                </div>
+                <div class="image-card">
+                    <div class="image-container">
+                        <img src="https://i.pinimg.com/736x/61/8f/d4/618fd45eb081f2ad89766b299245414e.jpg" alt="Image 2">
+                    </div>
+                    <div class="image-info">
+                        <h3>Monthly Budegt Tracking</h3>
+                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus lacinia odio vitae vestibulum vestibulum.</p>
+                        <a href="monthlytracker.html">To Learn More Sign Up<i class="fas fa-arrow-right"></i></a>
+                    </div>
+                </div>
+                <div class="image-card">
+                    <div class="image-container">
+                        <img src="https://i.pinimg.com/474x/60/17/be/6017bee38b39d13d48d95bcde33dc549.jpg" alt="Image 3">
+                    </div>
+                    <div class="image-info">
+                        <h3>Learn Investing</h3>
+                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus lacinia odio vitae vestibulum vestibulum.</p>
+                        <a href="invest.html">To Learn More Sign Up<i class="fas fa-arrow-right"></i></a>
+                    </div>
+                </div>
+            </section>
+            <section class="testim-container">
+                <h2 class="testim-title">What Our Users Say</h2>
+                <div class="testimonials">
+                    <div class="testimonial">
+                        <p>“FinTrack has completely changed the way I manage my finances. It's intuitive and powerful.”</p>
+                        <div class="testimonial-author">
+                            <div class="author-avatar">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div class="author-info">
+                                <h4>John Doe</h4>
+                                <span>Financial Analyst</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="testimonial">
+                        <p>“I love the detailed reports and budget tracking features. Highly recommend it!”</p>
+                        <div class="testimonial-author">
+                            <div class="author-avatar">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div class="author-info">
+                                <h4>Jane Smith</h4>
+                                <span>Entrepreneur</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="testimonial">
+                        <p>“The security features are top-notch. I feel safe using FinTrack for all my financial needs.”</p>
+                        <div class="testimonial-author">
+                            <div class="author-avatar">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div class="author-info">
+                                <h4>Emily Johnson</h4>
+                                <span>Software Engineer</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+        <footer>
+            <div class="footer-content">
+                <div class="footer-links">
+                    <a href="bypass.html" target="_blank">About Us</a>
+                    <a href="bypass.html" target="_blank">Contact</a>
+                    <a href="bypass.html" target="_blank">Privacy Policy</a>
+                    <a href="bypass.html" target="_blank">Terms of Service</a>
+                </div>
+                <div class="footer-social">
+                    <a href="https://www.facebook.com/" target="_blank"><i class="fab fa-facebook-f"></i></a>
+                    <a href="https://x.com/" target="_blank"><i class="fab fa-twitter"></i></a>
+                    <a href="https://www.instagram.com/" target="_blank"><i class="fab fa-instagram"></i></a>
+                    <a href="https://in.linkedin.com/" target="_blank"><i class="fab fa-linkedin-in"></i></a>
+                </div>
+                <div class="footer-text">
+                    © 2025 FinTrack. All rights reserved.
+                </div>
+            </div>
+        </footer>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const loginForm = document.getElementById('loginForm');
+            const signupForm = document.getElementById('signupForm');
+            const loginBtn = document.getElementById('loginBtn');
+            const signupBtn = document.getElementById('signupBtn');
+            const logoutBtn = document.getElementById('logoutBtn');
+            const authContainer = document.querySelector('.auth-container');
+            const dashboardTab = document.getElementById('dashboardTab');
+            const loginTabContent = document.getElementById('login-tab');
+
+            let isLoggedIn = false;
+            let authToken = localStorage.getItem('authToken');
+
+            if (authToken) {
+                isLoggedIn = true;
+                loginBtn.style.display = 'none';
+                signupBtn.style.display = 'none';
+                logoutBtn.style.display = 'inline-block';
+                switchTab('dashboard');
+            }
+
+            const switchTab = (tabId) => {
+                const tabs = document.querySelectorAll('.tab');
+                const tabContents = document.querySelectorAll('.tab-content');
+                tabs.forEach(tab => tab.classList.remove('active'));
+                tabContents.forEach(content => content.classList.remove('active'));
+                document.getElementById(tabId + 'Tab').classList.add('active');
+                document.getElementById(tabId.toLowerCase() + '-tab').classList.add('active');
+            };
+
+            const scrollToAuthContainer = () => {
+                authContainer.scrollIntoView({ behavior: 'smooth' });
+            };
+
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    if (tab.id === 'dashboardTab' && !isLoggedIn) {
+                        alert('Please log in to access the dashboard.');
+                        switchTab('login');
+                    } else {
+                        switchTab(tab.id.replace('Tab', ''));
+                    }
+                });
+            });
+
+            loginBtn.addEventListener('click', (event) => {
+                event.preventDefault();
+                switchTab('login');
+                scrollToAuthContainer();
+            });
+
+            signupBtn.addEventListener('click', (event) => {
+                event.preventDefault();
+                switchTab('signup');
+                scrollToAuthContainer();
+            });
+
+            logoutBtn.addEventListener('click', (event) => {
+                event.preventDefault();
+                isLoggedIn = false;
+                localStorage.removeItem('authToken');
+                loginBtn.style.display = 'inline-block';
+                signupBtn.style.display = 'inline-block';
+                logoutBtn.style.display = 'none';
+                switchTab('login');
+                scrollToAuthContainer();
+            });
+
+            signupForm.addEventListener('submit', async function (event) {
+                event.preventDefault();
+                const email = document.getElementById('signupEmail').value;
+                const password = document.getElementById('signupPassword').value;
+
+                try {
+                    const response = await fetch('http://localhost:5000/api/register', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ email, password }),
+                    });
+
+                    if (response.ok) {
+                        alert('User registered successfully');
+                        switchTab('login');
+                    } else {
+                        alert('Error registering user');
+                    }
+                } catch (error) {
+                    alert('Error registering user');
+                }
+            });
+
+            loginForm.addEventListener('submit', async function (event) {
+                event.preventDefault();
+                const email = document.getElementById('loginEmail').value;
+                const password = document.getElementById('loginPassword').value;
+
+                try {
+                    const response = await fetch('http://localhost:5000/api/login', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ email, password }),
+                    });
+
+                    const data = await response.json();
+                    if (response.ok) {
+                        isLoggedIn = true;
+                        localStorage.setItem('authToken', data.token);
+                        loginBtn.style.display = 'none';
+                        signupBtn.style.display = 'none';
+                        logoutBtn.style.display = 'inline-block';
+                        switchTab('dashboard');
+                        scrollToAuthContainer();
+                    } else {
+                        alert('Invalid credentials');
+                    }
+                } catch (error) {
+                    alert('Error logging in');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
