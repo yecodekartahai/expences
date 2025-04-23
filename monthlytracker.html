@@ -1,0 +1,1064 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monthly Budget Tracker</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --expense-color: #ef476f;
+            --income-color: #06d6a0;
+            --savings-color: #118ab2;
+            --warning-color: #ffd166;
+            --bg-color: #f8f9fa;
+            --card-bg: #ffffff;
+            --text-color: #212529;
+            --border-color: #e9ecef;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .dark-mode {
+            --bg-color: #121629;
+            --card-bg: #232946;
+            --text-color: #e0e0e0;
+            --border-color: #d1d1e1; /* Updated border color for dark mode */
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            --primary-color: #4361ee;
+            --secondary-color: #3f37c9;
+            --success-color: #4cc9f0;
+            --danger-color: #f72585;
+            --warning-color: #f8961e;
+            --info-color: #4895ef;
+            --dark-color: #121629;
+            --light-color: #d1d1e1;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            transition: background-color 0.3s, color 0.3s;
+            padding-bottom: 2rem;
+        }
+
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow);
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .mode-toggle {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 1.2rem;
+            padding: 0.5rem;
+            border-radius: 50%;
+            transition: background-color 0.3s;
+        }
+
+        .mode-toggle:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .dashboard-card {
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s;
+        }
+
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card-title {
+            font-size: 0.9rem;
+            color: #6c757d;
+            margin-bottom: 0.5rem;
+        }
+
+        .card-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .income-card .card-value {
+            color: var(--income-color);
+        }
+
+        .expense-card .card-value {
+            color: var(--expense-color);
+        }
+
+        .savings-card .card-value {
+            color: var(--savings-color);
+        }
+
+        .savings-percent-card .card-value {
+            color: var(--primary-color);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+
+        @media (min-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        h2 {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        select, input, button {
+            font-family: inherit;
+            font-size: 1rem;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            border: 1px solid var(--border-color);
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            transition: border-color 0.3s;
+        }
+
+        select:focus, input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #3251dc;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .input-group {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+
+        @media (min-width: 768px) {
+            .input-group {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .chart-container {
+            position: relative;
+            height: 250px;
+            margin-bottom: 2rem;
+        }
+
+        .tips {
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow);
+            border-left: 5px solid var(--primary-color);
+        }
+
+        .tips.warning {
+            border-left-color: var(--expense-color);
+        }
+
+        .tips.success {
+            border-left-color: var(--income-color);
+        }
+
+        .expense-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1.5rem;
+        }
+
+        .expense-table th,
+        .expense-table td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .expense-table th {
+            font-weight: 600;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .btn-secondary {
+            background-color: var(--secondary-color);
+        }
+
+        .btn-secondary:hover {
+            background-color: #3243c0;
+        }
+
+        .notes-container {
+            margin-top: 1rem;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 0.5rem;
+            font-family: inherit;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            resize: vertical;
+        }
+
+        .budget-limits {
+            margin-top: 1.5rem;
+        }
+
+        .limit-warning {
+            color: var(--expense-color);
+            font-weight: 500;
+            font-size: 0.9rem;
+            margin-top: 0.25rem;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 767px) {
+            .dashboard {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .chart-container {
+                height: 300px;
+            }
+
+            .card {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <span>💰 Personal Budget Tracker</span>
+        </div>
+        <button class="mode-toggle" id="darkModeToggle">🌙</button>
+    </header>
+
+    <div class="container">
+        <div class="dashboard">
+            <div class="dashboard-card income-card">
+                <div class="card-title">Total Income</div>
+                <div class="card-value" id="totalIncome">$0</div>
+                <div class="card-subtitle">Year to date</div>
+            </div>
+            <div class="dashboard-card expense-card">
+                <div class="card-title">Total Expenses</div>
+                <div class="card-value" id="totalExpenses">$0</div>
+                <div class="card-subtitle">Year to date</div>
+            </div>
+            <div class="dashboard-card savings-card">
+                <div class="card-title">Total Savings</div>
+                <div class="card-value" id="totalSavings">$0</div>
+                <div class="card-subtitle">Year to date</div>
+            </div>
+            <div class="dashboard-card savings-percent-card">
+                <div class="card-title">Average Savings %</div>
+                <div class="card-value" id="avgSavingPercent">0%</div>
+                <div class="card-subtitle">Year to date</div>
+            </div>
+        </div>
+
+        <div class="tips" id="smartTips">
+            Welcome to your Personal Budget Tracker! Start by entering this month's budget data.
+        </div>
+
+        <div class="grid">
+            <div class="card">
+                <div class="card-header">
+                    <h2>Monthly Budget</h2>
+                    <select id="monthSelect">
+                        <option value="0">January</option>
+                        <option value="1">February</option>
+                        <option value="2">March</option>
+                        <option value="3">April</option>
+                        <option value="4">May</option>
+                        <option value="5">June</option>
+                        <option value="6">July</option>
+                        <option value="7">August</option>
+                        <option value="8">September</option>
+                        <option value="9">October</option>
+                        <option value="10">November</option>
+                        <option value="11">December</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="income">Monthly Income</label>
+                    <input type="number" id="income" placeholder="Enter your monthly income">
+                </div>
+
+                <h3>Expenses</h3>
+
+                <div class="input-group">
+                    <div class="form-group">
+                        <label for="emi">EMI</label>
+                        <input type="number" id="emi" placeholder="EMI payments">
+                    </div>
+                    <div class="form-group">
+                        <label for="insurance">Insurance</label>
+                        <input type="number" id="insurance" placeholder="Insurance payments">
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <div class="form-group">
+                        <label for="rent">Rent</label>
+                        <input type="number" id="rent" placeholder="Rent payment">
+                    </div>
+                    <div class="form-group">
+                        <label for="food">Food</label>
+                        <input type="number" id="food" placeholder="Food expenses">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="other">Other Expenses</label>
+                    <input type="number" id="other" placeholder="Other expenses">
+                </div>
+
+                <div class="budget-limits">
+                    <h3>Budget Limits</h3>
+                    <div class="input-group">
+                        <div class="form-group">
+                            <label for="emiLimit">EMI Limit</label>
+                            <input type="number" id="emiLimit" placeholder="EMI limit">
+                        </div>
+                        <div class="form-group">
+                            <label for="insuranceLimit">Insurance Limit</label>
+                            <input type="number" id="insuranceLimit" placeholder="Insurance limit">
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <div class="form-group">
+                            <label for="rentLimit">Rent Limit</label>
+                            <input type="number" id="rentLimit" placeholder="Rent limit">
+                        </div>
+                        <div class="form-group">
+                            <label for="foodLimit">Food Limit</label>
+                            <input type="number" id="foodLimit" placeholder="Food limit">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="otherLimit">Other Expenses Limit</label>
+                        <input type="number" id="otherLimit" placeholder="Other expenses limit">
+                    </div>
+                </div>
+
+                <div class="notes-container">
+                    <label for="monthNotes">Notes for this month</label>
+                    <textarea id="monthNotes" rows="3" placeholder="Add optional notes for this month"></textarea>
+                </div>
+
+                <div class="btn-group">
+                    <button id="saveButton">Save Budget Data</button>
+                    <button id="downloadCSV" class="btn-secondary">Download Yearly Data</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2>Monthly Expense Breakdown</h2>
+                </div>
+                <div class="chart-container">
+                    <canvas id="expenseChart"></canvas>
+                </div>
+
+                <table class="expense-table" id="expenseTable">
+                    <thead>
+                        <tr>
+                            <th>Category</th>
+                            <th>Amount</th>
+                            <th>Percentage</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Table will be populated by JavaScript -->
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <th>Total</th>
+                            <th id="totalExpenseValue">$0</th>
+                            <th>100%</th>
+                            <th></th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h2>Income vs Expenses Trend</h2>
+            </div>
+            <div class="chart-container">
+                <canvas id="trendChart"></canvas>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h2>Yearly Savings</h2>
+            </div>
+            <div class="chart-container">
+                <canvas id="yearlyChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data structure to hold budget data
+        const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+        const expenseCategories = ['EMI', 'Insurance', 'Rent', 'Food', 'Other'];
+
+        // Initialize budget data
+        let budgetData = {
+            yearlyData: []
+        };
+
+        // Set current month in selector
+        const currentDate = new Date();
+        const currentMonth = currentDate.getMonth();
+        document.getElementById('monthSelect').value = currentMonth;
+
+        // DOM elements
+        const monthSelect = document.getElementById('monthSelect');
+        const incomeInput = document.getElementById('income');
+        const emiInput = document.getElementById('emi');
+        const insuranceInput = document.getElementById('insurance');
+        const rentInput = document.getElementById('rent');
+        const foodInput = document.getElementById('food');
+        const otherInput = document.getElementById('other');
+        const saveButton = document.getElementById('saveButton');
+        const downloadButton = document.getElementById('downloadCSV');
+        const expenseChart = document.getElementById('expenseChart');
+        const yearlyChart = document.getElementById('yearlyChart');
+        const trendChart = document.getElementById('trendChart');
+        const smartTips = document.getElementById('smartTips');
+        const totalIncomeEl = document.getElementById('totalIncome');
+        const totalExpensesEl = document.getElementById('totalExpenses');
+        const totalSavingsEl = document.getElementById('totalSavings');
+        const avgSavingPercentEl = document.getElementById('avgSavingPercent');
+        const expenseTable = document.getElementById('expenseTable').querySelector('tbody');
+        const totalExpenseValue = document.getElementById('totalExpenseValue');
+
+        const emiLimitInput = document.getElementById('emiLimit');
+        const insuranceLimitInput = document.getElementById('insuranceLimit');
+        const rentLimitInput = document.getElementById('rentLimit');
+        const foodLimitInput = document.getElementById('foodLimit');
+        const otherLimitInput = document.getElementById('otherLimit');
+        const monthNotesInput = document.getElementById('monthNotes');
+
+        // Chart instances
+        let monthlyExpenseChart;
+        let yearlySavingsChart;
+        let monthlyTrendChart;
+
+        // Initialize the application
+        function init() {
+            loadBudgetData();
+            setupEventListeners();
+            loadMonthData(currentMonth);
+            updateDashboard();
+            createYearlyChart();
+            createTrendChart();
+        }
+
+        // Load budget data from localStorage
+        function loadBudgetData() {
+            const savedData = localStorage.getItem('budgetTrackerData');
+            if (savedData) {
+                budgetData = JSON.parse(savedData);
+            } else {
+                // Initialize data structure for all months
+                for (let i = 0; i < 12; i++) {
+                    budgetData.yearlyData[i] = {
+                        income: 0,
+                        expenses: {
+                            emi: 0,
+                            insurance: 0,
+                            rent: 0,
+                            food: 0,
+                            other: 0
+                        },
+                        limits: {
+                            emi: 0,
+                            insurance: 0,
+                            rent: 0,
+                            food: 0,
+                            other: 0
+                        },
+                        notes: '',
+                        totalExpenses: 0,
+                        remainingBalance: 0,
+                        savingsPercent: 0
+                    };
+                }
+            }
+        }
+
+        // Save budget data to localStorage
+        function saveBudgetData() {
+            localStorage.setItem('budgetTrackerData', JSON.stringify(budgetData));
+        }
+
+        // Set up event listeners
+        function setupEventListeners() {
+            monthSelect.addEventListener('change', function() {
+                loadMonthData(parseInt(this.value));
+            });
+
+            saveButton.addEventListener('click', saveMonthData);
+            downloadButton.addEventListener('click', downloadCSV);
+
+            // Dark mode toggle
+            document.getElementById('darkModeToggle').addEventListener('click', toggleDarkMode);
+        }
+
+        // Toggle dark mode
+        function toggleDarkMode() {
+            const body = document.body;
+            body.classList.toggle('dark-mode');
+
+            const darkModeButton = document.getElementById('darkModeToggle');
+            if (body.classList.contains('dark-mode')) {
+                darkModeButton.textContent = '☀️';
+                localStorage.setItem('darkMode', 'enabled');
+            } else {
+                darkModeButton.textContent = '🌙';
+                localStorage.setItem('darkMode', 'disabled');
+            }
+
+            // Refresh charts to update their colors
+            createMonthlyExpenseChart();
+            createYearlyChart();
+            createTrendChart();
+        }
+
+        // Check if dark mode was previously enabled
+        if (localStorage.getItem('darkMode') === 'enabled') {
+            document.body.classList.add('dark-mode');
+            document.getElementById('darkModeToggle').textContent = '☀️';
+        }
+
+        // Load data for a specific month
+        function loadMonthData(monthIndex) {
+            const monthData = budgetData.yearlyData[monthIndex] || {
+                income: 0,
+                expenses: { emi: 0, insurance: 0, rent: 0, food: 0, other: 0 },
+                limits: { emi: 0, insurance: 0, rent: 0, food: 0, other: 0 },
+                notes: '',
+                totalExpenses: 0,
+                remainingBalance: 0,
+                savingsPercent: 0
+            };
+
+            // Populate form fields
+            incomeInput.value = monthData.income || '';
+            emiInput.value = monthData.expenses.emi || '';
+            insuranceInput.value = monthData.expenses.insurance || '';
+            rentInput.value = monthData.expenses.rent || '';
+            foodInput.value = monthData.expenses.food || '';
+            otherInput.value = monthData.expenses.other || '';
+
+            // Populate limits and notes
+            emiLimitInput.value = monthData.limits?.emi || '';
+            insuranceLimitInput.value = monthData.limits?.insurance || '';
+            rentLimitInput.value = monthData.limits?.rent || '';
+            foodLimitInput.value = monthData.limits?.food || '';
+            otherLimitInput.value = monthData.limits?.other || '';
+            monthNotesInput.value = monthData.notes || '';
+
+            // Create monthly expense chart
+            createMonthlyExpenseChart();
+
+            // Update expense table
+            updateExpenseTable();
+
+            // Show smart tips
+            showSmartTips(monthData);
+        }
+
+        // Save data for the current month
+        function saveMonthData() {
+            const monthIndex = parseInt(monthSelect.value);
+
+            // Get values from form
+            const income = parseFloat(incomeInput.value) || 0;
+            const emi = parseFloat(emiInput.value) || 0;
+            const insurance = parseFloat(insuranceInput.value) || 0;
+            const rent = parseFloat(rentInput.value) || 0;
+            const food = parseFloat(foodInput.value) || 0;
+            const other = parseFloat(otherInput.value) || 0;
+
+            // Get limits and notes
+            const emiLimit = parseFloat(emiLimitInput.value) || 0;
+            const insuranceLimit = parseFloat(insuranceLimitInput.value) || 0;
+            const rentLimit = parseFloat(rentLimitInput.value) || 0;
+            const foodLimit = parseFloat(foodLimitInput.value) || 0;
+            const otherLimit = parseFloat(otherLimitInput.value) || 0;
+            const notes = monthNotesInput.value;
+
+            // Calculate totals
+            const totalExpenses = emi + insurance + rent + food + other;
+            const remainingBalance = income - totalExpenses;
+            const savingsPercent = income > 0 ? (remainingBalance / income) * 100 : 0;
+
+            // Update budget data
+            budgetData.yearlyData[monthIndex] = {
+                income,
+                expenses: { emi, insurance, rent, food, other },
+                limits: { emi: emiLimit, insurance: insuranceLimit, rent: rentLimit, food: foodLimit, other: otherLimit },
+                notes,
+                totalExpenses,
+                remainingBalance,
+                savingsPercent
+            };
+
+            // Save data to localStorage
+            saveBudgetData();
+
+            // Update UI components
+            updateDashboard();
+            createMonthlyExpenseChart();
+            createYearlyChart();
+            createTrendChart();
+            updateExpenseTable();
+            showSmartTips(budgetData.yearlyData[monthIndex]);
+
+            // Show success message
+            alert('Budget data saved successfully!');
+        }
+
+        // Create monthly expense chart
+        function createMonthlyExpenseChart() {
+            const monthIndex = parseInt(monthSelect.value);
+            const monthData = budgetData.yearlyData[monthIndex] || {
+                expenses: { emi: 0, insurance: 0, rent: 0, food: 0, other: 0 }
+            };
+
+            const expenses = [
+                monthData.expenses.emi || 0,
+                monthData.expenses.insurance || 0,
+                monthData.expenses.rent || 0,
+                monthData.expenses.food || 0,
+                monthData.expenses.other || 0
+            ];
+
+            if (monthlyExpenseChart) {
+                monthlyExpenseChart.destroy();
+            }
+
+            const isDarkMode = document.body.classList.contains('dark-mode');
+            const textColor = isDarkMode ? '#e0e0e0' : '#212529';
+
+            monthlyExpenseChart = new Chart(expenseChart, {
+                type: 'pie',
+                data: {
+                    labels: expenseCategories,
+                    datasets: [{
+                        data: expenses,
+                        backgroundColor: [
+                            '#FF6384',
+                            '#36A2EB',
+                            '#FFCE56',
+                            '#4BC0C0',
+                            '#9966FF'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: {
+                                color: textColor
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.raw || 0;
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = total > 0 ? Math.round((value / total) * 100) : 0;
+                                    return `${label}: $${value} (${percentage}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Create yearly savings chart
+        function createYearlyChart() {
+            const savings = [];
+            const monthLabels = [];
+
+            for (let i = 0; i < 12; i++) {
+                const monthData = budgetData.yearlyData[i];
+                savings.push(monthData?.remainingBalance || 0);
+                monthLabels.push(months[i]);
+            }
+
+            if (yearlySavingsChart) {
+                yearlySavingsChart.destroy();
+            }
+
+            const isDarkMode = document.body.classList.contains('dark-mode');
+            const textColor = isDarkMode ? '#e0e0e0' : '#212529';
+
+            yearlySavingsChart = new Chart(yearlyChart, {
+                type: 'bar',
+                data: {
+                    labels: monthLabels,
+                    datasets: [{
+                        label: 'Monthly Savings',
+                        data: savings,
+                        backgroundColor: '#4361ee',
+                        borderColor: '#3251dc',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'
+                            },
+                            ticks: {
+                                color: textColor,
+                                callback: function(value) {
+                                    return '$' + value;
+                                }
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                color: textColor
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: textColor
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Create income vs expenses trend chart
+        function createTrendChart() {
+            const incomeData = [];
+            const expenseData = [];
+            const monthLabels = [];
+
+            for (let i = 0; i < 12; i++) {
+                const monthData = budgetData.yearlyData[i];
+                incomeData.push(monthData?.income || 0);
+                expenseData.push(monthData?.totalExpenses || 0);
+                monthLabels.push(months[i]);
+            }
+
+            if (monthlyTrendChart) {
+                monthlyTrendChart.destroy();
+            }
+
+            const isDarkMode = document.body.classList.contains('dark-mode');
+            const textColor = isDarkMode ? '#e0e0e0' : '#212529';
+
+            monthlyTrendChart = new Chart(trendChart, {
+                type: 'line',
+                data: {
+                    labels: monthLabels,
+                    datasets: [
+                        {
+                            label: 'Income',
+                            data: incomeData,
+                            backgroundColor: 'rgba(6, 214, 160, 0.2)',
+                            borderColor: 'rgba(6, 214, 160, 1)',
+                            borderWidth: 2,
+                            tension: 0.3,
+                            fill: true
+                        },
+                        {
+                            label: 'Expenses',
+                            data: expenseData,
+                            backgroundColor: 'rgba(239, 71, 111, 0.2)',
+                            borderColor: 'rgba(239, 71, 111, 1)',
+                            borderWidth: 2,
+                            tension: 0.3,
+                            fill: true
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'
+                            },
+                            ticks: {
+                                color: textColor,
+                                callback: function(value) {
+                                    return '$' + value;
+                                }
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                color: textColor
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: textColor
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Update dashboard with yearly data
+        function updateDashboard() {
+            let totalIncome = 0;
+            let totalExpenses = 0;
+            let totalSavings = 0;
+            let savingsCount = 0;
+
+            for (let i = 0; i < 12; i++) {
+                const monthData = budgetData.yearlyData[i];
+                totalIncome += monthData.income || 0;
+                totalExpenses += monthData.totalExpenses || 0;
+                totalSavings += monthData.remainingBalance || 0;
+                if (monthData.savingsPercent > 0) {
+                    savingsCount++;
+                }
+            }
+
+            totalIncomeEl.textContent = `$${totalIncome.toFixed(2)}`;
+            totalExpensesEl.textContent = `$${totalExpenses.toFixed(2)}`;
+            totalSavingsEl.textContent = `$${totalSavings.toFixed(2)}`;
+            avgSavingPercentEl.textContent = `${(totalSavings / totalIncome * 100).toFixed(2)}%`;
+        }
+
+        // Update expense table with category-wise values and percentages
+        function updateExpenseTable() {
+            const monthIndex = parseInt(monthSelect.value);
+            const monthData = budgetData.yearlyData[monthIndex] || {
+                expenses: { emi: 0, insurance: 0, rent: 0, food: 0, other: 0 },
+                limits: { emi: 0, insurance: 0, rent: 0, food: 0, other: 0 }
+            };
+
+            const totalExpenses = monthData.totalExpenses || 0;
+            const expenses = monthData.expenses;
+            const limits = monthData.limits;
+
+            expenseTable.innerHTML = '';
+
+            expenseCategories.forEach(category => {
+                const amount = expenses[category.toLowerCase()] || 0;
+                const percentage = totalExpenses > 0 ? (amount / totalExpenses * 100).toFixed(2) : 0;
+                const limit = limits[category.toLowerCase()] || 0;
+                const status = amount > limit ? 'Exceeded' : 'Within Limit';
+                const statusClass = amount > limit ? 'limit-warning' : '';
+
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${category}</td>
+                    <td>$${amount.toFixed(2)}</td>
+                    <td>${percentage}%</td>
+                    <td class="${statusClass}">${status}</td>
+                `;
+                expenseTable.appendChild(row);
+            });
+
+            totalExpenseValue.textContent = `$${totalExpenses.toFixed(2)}`;
+        }
+
+        // Show smart tips based on remaining balance
+        function showSmartTips(monthData) {
+            const remainingBalance = monthData.remainingBalance || 0;
+            const savingsPercent = monthData.savingsPercent || 0;
+
+            let message = '';
+            let messageClass = '';
+
+            if (remainingBalance < 0) {
+                message = 'You are overspending!';
+                messageClass = 'warning';
+            } else if (savingsPercent < 10) {
+                message = 'You\'re saving less than 10%. Consider reducing your expenses.';
+                messageClass = 'warning';
+            } else if (savingsPercent >= 10 && savingsPercent < 20) {
+                message = 'You\'re doing okay, but try to save more!';
+                messageClass = 'success';
+            } else {
+                message = 'Great job! 🎉';
+                messageClass = 'success';
+            }
+
+            smartTips.textContent = message;
+            smartTips.className = `tips ${messageClass}`;
+        }
+
+        // Download yearly data as CSV
+        function downloadCSV() {
+            const csvRows = [];
+
+            // Headers
+            csvRows.push('Month,Income,EMI,Insurance,Rent,Food,Other,Total Expenses,Remaining Balance,Savings Percent,Notes');
+
+            // Data rows
+            for (let i = 0; i < 12; i++) {
+                const monthData = budgetData.yearlyData[i];
+                const row = [
+                    months[i],
+                    monthData.income || 0,
+                    monthData.expenses.emi || 0,
+                    monthData.expenses.insurance || 0,
+                    monthData.expenses.rent || 0,
+                    monthData.expenses.food || 0,
+                    monthData.expenses.other || 0,
+                    monthData.totalExpenses || 0,
+                    monthData.remainingBalance || 0,
+                    monthData.savingsPercent || 0,
+                    monthData.notes || ''
+                ];
+                csvRows.push(row.join(','));
+            }
+
+            // Create CSV content
+            const csvContent = csvRows.join('\n');
+
+            // Create a Blob and download
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'yearly_budget_data.csv';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+
+        // Initialize the application
+        init();
+    </script>
+</body>
+</html>
