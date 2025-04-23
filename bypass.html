@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>FinTrack - Financial Management Website</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      padding: 0;
+      color: #333;
+      background-color: #f2f4f8;
+    }
+
+    header {
+      background: #4361ee;
+      color: #fff;
+      padding: 2rem 0;
+      text-align: center;
+    }
+
+    header h1 {
+      font-size: 2.5rem;
+      margin: 0;
+    }
+
+    header p {
+      font-size: 1.2rem;
+      margin-top: 0.5rem;
+      font-weight: 400;
+    }
+
+    nav {
+      background: #3751b1;
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      padding: 1rem 0;
+    }
+
+    nav a {
+      color: #fff;
+      text-decoration: none;
+      margin: 0 1rem;
+      font-weight: 600;
+      transition: 0.3s;
+    }
+
+    nav a:hover {
+      text-decoration: underline;
+    }
+
+    .hero {
+      background: #e8f0fe;
+      text-align: center;
+      padding: 4rem 2rem;
+    }
+
+    .hero h2 {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+      color: #222;
+    }
+
+    .hero p {
+      font-size: 1.2rem;
+      margin-bottom: 2rem;
+      color: #555;
+    }
+
+    .cta-btn {
+      background: #4361ee;
+      color: #fff;
+      padding: 0.75rem 1.5rem;
+      border-radius: 6px;
+      text-decoration: none;
+      font-weight: 600;
+      transition: background 0.3s;
+    }
+
+    .cta-btn:hover {
+      background: #2c45b0;
+    }
+
+    .container {
+      width: 90%;
+      max-width: 1100px;
+      margin: auto;
+      padding: 2rem 0;
+    }
+
+    section {
+      margin: 2rem 0;
+      background: #fff;
+      padding: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    }
+
+    section h2 {
+      color: #3751b1;
+      margin-bottom: 1rem;
+    }
+
+    .contact form {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .contact form input,
+    .contact form textarea {
+      margin-bottom: 1rem;
+      padding: 0.75rem;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+
+    .contact form button {
+      background: #4361ee;
+      color: #fff;
+      padding: 0.75rem;
+      border: none;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .contact form button:hover {
+      background: #2c45b0;
+    }
+
+    footer {
+      background: #4361ee;
+      color: #fff;
+      text-align: center;
+      padding: 1rem 0;
+      margin-top: 4rem;
+    }
+
+    @media (max-width: 768px) {
+      nav {
+        flex-direction: column;
+      }
+
+      nav a {
+        margin: 0.5rem 0;
+      }
+
+      .hero h2 {
+        font-size: 2rem;
+      }
+
+      .hero p {
+        font-size: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>FinTrack</h1>
+    <p>Your Partner in Financial Success</p>
+  </header>
+
+  <nav>
+    <a href="#about">About Us</a>
+    <a href="#contact">Contact Us</a>
+    <a href="#privacy">Privacy Policy</a>
+    <a href="#terms">Terms and Services</a>
+  </nav>
+
+  <section class="hero">
+    <h2>Your Financial Freedom Starts Here</h2>
+    <p>Expert guidance and smart tools to help you manage, grow, and protect your finances.</p>
+    <a href="#contact" class="cta-btn">Schedule a Free Consultation</a>
+  </section>
+
+  <div class="container">
+    <section id="about" class="about">
+      <h2>About Us</h2>
+      <p>Our mission is to empower individuals and businesses to achieve financial well-being through expert advice and innovative solutions. We offer a range of core financial services including budgeting, investments, and debt management.</p>
+    </section>
+
+    <section id="contact" class="contact">
+      <h2>Contact Us</h2>
+      <form>
+        <input type="text" name="name" placeholder="Your Name" required>
+        <input type="email" name="email" placeholder="Your Email" required>
+        <textarea name="message" rows="5" placeholder="Your Message" required></textarea>
+        <button type="submit">Submit</button>
+      </form>
+      <p>Email: contact@fintrack.com</p>
+      <p>Phone: +123 456 7890</p>
+      <p>Office: 123 Financial Ave, Finance City, FC 12345</p>
+    </section>
+
+    <section id="privacy" class="privacy">
+      <h2>Privacy Policy</h2>
+      <p>We are committed to protecting your personal information. We collect data to improve our services and ensure compliance with data protection laws such as GDPR. Your data is securely stored and never shared without your consent.</p>
+    </section>
+
+    <section id="terms" class="terms">
+      <h2>Terms and Services</h2>
+      <p>By using our services, you agree to our terms and conditions. This includes our user agreement, service use policies, disclaimers, and limitations of liability. Please read these terms carefully before using our services.</p>
+    </section>
+  </div>
+
+  <footer>
+    <p>&copy; 2025 FinTrack. All rights reserved.</p>
+  </footer>
+
+</body>
+</html>
