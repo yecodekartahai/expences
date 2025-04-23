@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Expense Tracker</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3f37c9;
+            --success-color: #4cc9f0;
+            --danger-color: #f72585;
+            --warning-color: #f8961e;
+            --info-color: #4895ef;
+            --dark-color: #232946;
+            --light-color: #f8f9fa;
+            --travel-color: #f72585;
+            --food-color: #4cc9f0;
+            --other-color: #f8961e;
+            --card-bg: #ffffff;
+            --body-bg: #f5f7fb;
+            --text-color: #333;
+            --border-radius: 10px;
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        body.dark-mode {
+            --primary-color: #4361ee;
+            --secondary-color: #3f37c9;
+            --success-color: #4cc9f0;
+            --danger-color: #f72585;
+            --warning-color: #f8961e;
+            --info-color: #4895ef;
+            --dark-color: #121629;
+            --light-color: #d1d1e1;
+            --card-bg: #232946;
+            --body-bg: #121629;
+            --text-color: #e0e0e0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--body-bg);
+            color: var(--text-color);
+            transition: var(--transition);
+            padding-bottom: 40px;
+        }
+
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            box-shadow: var(--box-shadow);
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+        }
+
+        .logo span {
+            margin-left: 10px;
+        }
+
+        .mode-toggle {
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .mode-toggle:hover {
+            transform: scale(1.1);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .dashboard-card {
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            box-shadow: var(--box-shadow);
+            text-align: center;
+            transition: var(--transition);
+        }
+
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-title {
+            font-size: 0.9rem;
+            color: var(--text-color);
+            opacity: 0.7;
+            margin-bottom: 10px;
+        }
+
+        .card-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .card-subtitle {
+            font-size: 0.8rem;
+            color: var(--text-color);
+            opacity: 0.6;
+        }
+
+        .expense-card:nth-child(1) .card-value {
+            color: var(--primary-color);
+        }
+
+        .expense-card:nth-child(2) .card-value {
+            color: var(--secondary-color);
+        }
+
+        .expense-card:nth-child(3) .card-value {
+            color: var(--travel-color);
+        }
+
+        .expense-card:nth-child(4) .card-value {
+            color: var(--food-color);
+        }
+
+        .expense-card:nth-child(5) .card-value {
+            color: var(--other-color);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            box-shadow: var(--box-shadow);
+            margin-bottom: 20px;
+            transition: var(--transition);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .card-header h2 {
+            font-size: 1.2rem;
+            color: var(--text-color);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: var(--text-color);
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: var(--card-bg);
+            color: var(--text-color);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        button {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+        }
+
+        #saveButton {
+            background-color: var(--primary-color);
+            color: white;
+            flex: 1;
+        }
+
+        .btn-secondary {
+            background-color: var(--secondary-color);
+            color: white;
+            flex: 1;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin-bottom: 20px;
+        }
+
+        .expense-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .expense-table th, .expense-table td {
+            padding: 10px;
+            text-align: center;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .expense-table th {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .expense-table tr:nth-child(even) {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+
+        .tips {
+            background-color: var(--info-color);
+            color: white;
+            padding: 15px;
+            border-radius: var(--border-radius);
+            margin-bottom: 20px;
+            box-shadow: var(--box-shadow);
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .tips.warning {
+            background-color: var(--warning-color);
+        }
+
+        .tips.success {
+            background-color: var(--success-color);
+        }
+
+        .tips.danger {
+            background-color: var(--danger-color);
+        }
+
+        /* Responsive styles */
+        @media (max-width: 900px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            .dashboard {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            }
+        }
+
+        @media (max-width: 600px) {
+            .dashboard {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .btn-group {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <span>💸 Daily Expense Tracker</span>
+        </div>
+        <button class="mode-toggle" id="darkModeToggle">🌙</button>
+    </header>
+
+    <div class="container">
+        <div class="dashboard">
+            <div class="dashboard-card expense-card">
+                <div class="card-title">Total Expenses</div>
+                <div class="card-value" id="totalExpenses">$0</div>
+                <div class="card-subtitle">This month</div>
+            </div>
+            <div class="dashboard-card expense-card">
+                <div class="card-title">Average Daily Expenses</div>
+                <div class="card-value" id="avgDailyExpenses">$0</div>
+                <div class="card-subtitle">This month</div>
+            </div>
+            <div class="dashboard-card expense-card">
+                <div class="card-title">Travel Expenses</div>
+                <div class="card-value" id="travelExpenses">$0</div>
+                <div class="card-subtitle">This month</div>
+            </div>
+            <div class="dashboard-card expense-card">
+                <div class="card-title">Food Expenses</div>
+                <div class="card-value" id="foodExpenses">$0</div>
+                <div class="card-subtitle">This month</div>
+            </div>
+            <div class="dashboard-card expense-card">
+                <div class="card-title">Other Expenses</div>
+                <div class="card-value" id="otherExpenses">$0</div>
+                <div class="card-subtitle">This month</div>
+            </div>
+        </div>
+
+        <div class="tips" id="smartTips">
+            Welcome to your Daily Expense Tracker! Start by entering today's expenses.
+        </div>
+
+        <div class="grid">
+            <div class="card">
+                <div class="card-header">
+                    <h2>Daily Expenses</h2>
+                    <input type="date" id="expenseDate" value="">
+                </div>
+
+                <div class="form-group">
+                    <label for="travel">Travel Expenses</label>
+                    <input type="number" id="travel" placeholder="Enter travel expenses" min="0" step="0.01">
+                </div>
+
+                <div class="form-group">
+                    <label for="food">Food Expenses</label>
+                    <input type="number" id="food" placeholder="Enter food expenses" min="0" step="0.01">
+                </div>
+
+                <div class="form-group">
+                    <label for="other">Other Expenses</label>
+                    <input type="number" id="other" placeholder="Enter other expenses" min="0" step="0.01">
+                </div>
+
+                <div class="btn-group">
+                    <button id="saveButton">Save Expense</button>
+                    <button id="downloadReport" class="btn-secondary">Download Monthly Report</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2>Category-wise Expense Breakdown</h2>
+                </div>
+                <div class="chart-container">
+                    <canvas id="categoryExpenseChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h2>Daily Expense Breakdown</h2>
+            </div>
+            <div class="chart-container">
+                <canvas id="dailyExpenseChart"></canvas>
+            </div>
+
+            <table class="expense-table" id="expenseTable">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Travel</th>
+                        <th>Food</th>
+                        <th>Other</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Table will be populated by JavaScript -->
+                </tbody>
+            </table>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h2>Daily Expense Trend</h2>
+            </div>
+            <div class="chart-container">
+                <canvas id="trendChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize date input with today's date
+        const today = new Date();
+        const formattedDate = today.toISOString().substr(0, 10);
+        document.getElementById('expenseDate').value = formattedDate;
+
+        // Dark mode toggle
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        const body = document.body;
+
+        // Check if user preference is stored
+        const isDarkMode = localStorage.getItem('darkMode') === 'true';
+
+        // Apply dark mode if preferred
+        if (isDarkMode) {
+            body.classList.add('dark-mode');
+            darkModeToggle.textContent = '☀️';
+        }
+
+        darkModeToggle.addEventListener('click', () => {
+            body.classList.toggle('dark-mode');
+            const isDark = body.classList.contains('dark-mode');
+            localStorage.setItem('darkMode', isDark);
+            darkModeToggle.textContent = isDark ? '☀️' : '🌙';
+
+            // Redraw charts with new theme colors and trigger animations
+            updateAllCharts();
+        });
+
+        // Data structure for expenses
+        let expenses = JSON.parse(localStorage.getItem('expenses')) || {};
+
+        // Chart variables
+        let dailyExpenseChart, categoryExpenseChart, trendChart;
+
+        // Helper function to format currency
+        function formatCurrency(amount) {
+            return '$' + parseFloat(amount).toFixed(2);
+        }
+
+        // Helper function to get month name
+        function getMonthName(date) {
+            const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+                               'July', 'August', 'September', 'October', 'November', 'December'];
+            return monthNames[date.getMonth()];
+        }
+
+        // Helper function to get current month's data
+        function getCurrentMonthData() {
+            const currentMonth = today.getMonth();
+            const currentYear = today.getFullYear();
+
+            let monthData = [];
+
+            for (const date in expenses) {
+                const expenseDate = new Date(date);
+                if (expenseDate.getMonth() === currentMonth && expenseDate.getFullYear() === currentYear) {
+                    monthData.push({
+                        date: date,
+                        ...expenses[date]
+                    });
+                }
+            }
+
+            // Sort by date
+            monthData.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+            return monthData;
+        }
+
+        // Helper function to get category totals
+        function getCategoryTotals() {
+            const monthData = getCurrentMonthData();
+
+            return monthData.reduce((acc, expense) => {
+                acc.travel += parseFloat(expense.travel || 0);
+                acc.food += parseFloat(expense.food || 0);
+                acc.other += parseFloat(expense.other || 0);
+                return acc;
+            }, { travel: 0, food: 0, other: 0 });
+        }
+
+        // Helper function to update dashboard stats
+        function updateDashboardStats() {
+            const monthData = getCurrentMonthData();
+            const categoryTotals = getCategoryTotals();
+
+            const totalExpense = categoryTotals.travel + categoryTotals.food + categoryTotals.other;
+            const avgDailyExpense = monthData.length > 0 ? totalExpense / monthData.length : 0;
+
+            document.getElementById('totalExpenses').textContent = formatCurrency(totalExpense);
+            document.getElementById('avgDailyExpenses').textContent = formatCurrency(avgDailyExpense);
+            document.getElementById('travelExpenses').textContent = formatCurrency(categoryTotals.travel);
+            document.getElementById('foodExpenses').textContent = formatCurrency(categoryTotals.food);
+            document.getElementById('otherExpenses').textContent = formatCurrency(categoryTotals.other);
+
+            // Update smart tips
+            updateSmartTips(totalExpense, avgDailyExpense, categoryTotals);
+        }
+
+        // Helper function for smart tips
+        function updateSmartTips(totalExpense, avgDailyExpense, categoryTotals) {
+            const tipsElement = document.getElementById('smartTips');
+
+            // Reset classes
+            tipsElement.className = 'tips';
+
+            // Calculate percentages
+            const totalFoodPercentage = totalExpense > 0 ? (categoryTotals.food / totalExpense) * 100 : 0;
+            const totalTravelPercentage = totalExpense > 0 ? (categoryTotals.travel / totalExpense) * 100 : 0;
+
+            // Generate smart tips based on spending patterns
+            let tip = '';
+
+            if (totalExpense === 0) {
+                tip = 'Welcome to your Daily Expense Tracker! Start by entering today\'s expenses.';
+            } else if (totalFoodPercentage > 50) {
+                tip = '⚠️ You are spending more than 50% on food. Consider cooking at home more often to save money.';
+                tipsElement.classList.add('warning');
+            } else if (totalTravelPercentage > 40) {
+                tip = '⚠️ Your travel expenses are quite high (>40% of total). Consider carpooling or public transport.';
+                tipsElement.classList.add('warning');
+            } else if (avgDailyExpense > 100) {
+                tip = '❗ Your daily average spending seems high. Try to identify areas where you can cut back.';
+                tipsElement.classList.add('danger');
+            } else if (totalExpense < 500 && getCurrentMonthData().length > 10) {
+                tip = '🎉 Great job! You\'re keeping your expenses under control this month.';
+                tipsElement.classList.add('success');
+            } else {
+                tip = `📊 Track your expenses daily to get better insights into your spending habits.`;
+                tipsElement.classList.add('info');
+            }
+
+            tipsElement.textContent = tip;
+        }
+
+        // Initialize daily expense chart
+        function initDailyExpenseChart() {
+            const ctx = document.getElementById('dailyExpenseChart').getContext('2d');
+
+            dailyExpenseChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: [],
+                    datasets: [
+                        {
+                            label: 'Travel',
+                            backgroundColor: 'rgba(247, 37, 133, 0.7)',
+                            borderColor: 'rgba(247, 37, 133, 1)',
+                            borderWidth: 1,
+                            data: []
+                        },
+                        {
+                            label: 'Food',
+                            backgroundColor: 'rgba(76, 201, 240, 0.7)',
+                            borderColor: 'rgba(76, 201, 240, 1)',
+                            borderWidth: 1,
+                            data: []
+                        },
+                        {
+                            label: 'Other',
+                            backgroundColor: 'rgba(248, 150, 30, 0.7)',
+                            borderColor: 'rgba(248, 150, 30, 1)',
+                            borderWidth: 1,
+                            data: []
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            stacked: true
+                        },
+                        y: {
+                            stacked: true,
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '$' + value;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Initialize category expense chart
+        function initCategoryExpenseChart() {
+            const ctx = document.getElementById('categoryExpenseChart').getContext('2d');
+
+            categoryExpenseChart = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: ['Travel', 'Food', 'Other'],
+                    datasets: [{
+                        data: [0, 0, 0],
+                        backgroundColor: [
+                            'rgba(247, 37, 133, 0.7)',
+                            'rgba(76, 201, 240, 0.7)',
+                            'rgba(248, 150, 30, 0.7)'
+                        ],
+                        borderColor: [
+                            'rgba(247, 37, 133, 1)',
+                            'rgba(76, 201, 240, 1)',
+                            'rgba(248, 150, 30, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    animation: {
+                        animateRotate: true,
+                        animateScale: true
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.raw || 0;
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = total > 0 ? Math.round((value / total) * 100) : 0;
+                                    return `${label}: ${formatCurrency(value)} (${percentage}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Initialize trend chart
+        function initTrendChart() {
+            const ctx = document.getElementById('trendChart').getContext('2d');
+
+            trendChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Daily Total',
+                        data: [],
+                        fill: false,
+                        borderColor: 'rgba(67, 97, 238, 1)',
+                        tension: 0.1,
+                        pointBackgroundColor: 'rgba(67, 97, 238, 1)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '$' + value;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Update daily expense chart
+        function updateDailyExpenseChart() {
+            const monthData = getCurrentMonthData();
+
+            const labels = monthData.map(item => {
+                const date = new Date(item.date);
+                return date.getDate();
+            });
+
+            const travelData = monthData.map(item => parseFloat(item.travel || 0));
+            const foodData = monthData.map(item => parseFloat(item.food || 0));
+            const otherData = monthData.map(item => parseFloat(item.other || 0));
+
+            dailyExpenseChart.data.labels = labels;
+            dailyExpenseChart.data.datasets[0].data = travelData;
+            dailyExpenseChart.data.datasets[1].data = foodData;
+            dailyExpenseChart.data.datasets[2].data = otherData;
+
+            dailyExpenseChart.update();
+        }
+
+        // Update category expense chart
+        function updateCategoryExpenseChart() {
+            const categoryTotals = getCategoryTotals();
+
+            categoryExpenseChart.data.datasets[0].data = [
+                categoryTotals.travel,
+                categoryTotals.food,
+                categoryTotals.other
+            ];
+
+            categoryExpenseChart.update();
+        }
+
+        // Update trend chart
+        function updateTrendChart() {
+            const monthData = getCurrentMonthData();
+
+            const labels = monthData.map(item => {
+                const date = new Date(item.date);
+                return date.getDate();
+            });
+
+            const totalData = monthData.map(item => {
+                return parseFloat(item.travel || 0) + parseFloat(item.food || 0) + parseFloat(item.other || 0);
+            });
+
+            trendChart.data.labels = labels;
+            trendChart.data.datasets[0].data = totalData;
+
+            trendChart.update();
+        }
+
+        // Update expense table
+        function updateExpenseTable() {
+            const monthData = getCurrentMonthData();
+            const tableBody = document.querySelector('#expenseTable tbody');
+
+            // Clear existing rows
+            tableBody.innerHTML = '';
+
+            monthData.forEach(item => {
+                const travel = parseFloat(item.travel || 0);
+                const food = parseFloat(item.food || 0);
+                const other = parseFloat(item.other || 0);
+                const total = travel + food + other;
+
+                const date = new Date(item.date);
+                const formattedDate = `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`;
+
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${formattedDate}</td>
+                    <td>${formatCurrency(travel)}</td>
+                    <td>${formatCurrency(food)}</td>
+                    <td>${formatCurrency(other)}</td>
+                    <td>${formatCurrency(total)}</td>
+                `;
+
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Update all charts and data
+        function updateAllCharts() {
+            updateDailyExpenseChart();
+            updateCategoryExpenseChart();
+            updateTrendChart();
+            updateExpenseTable();
+            updateDashboardStats();
+        }
+
+        // Save expense data
+        document.getElementById('saveButton').addEventListener('click', function() {
+            const date = document.getElementById('expenseDate').value;
+            const travel = document.getElementById('travel').value || '0';
+            const food = document.getElementById('food').value || '0';
+            const other = document.getElementById('other').value || '0';
+
+            // Validate inputs
+            if (date === '') {
+                alert('Please select a date');
+                return;
+            }
+
+            // Save data
+            expenses[date] = {
+                travel: travel,
+                food: food,
+                other: other
+            };
+
+            // Save to localStorage
+            localStorage.setItem('expenses', JSON.stringify(expenses));
+
+            // Update UI
+            updateAllCharts();
+
+            // Clear form
+            document.getElementById('travel').value = '';
+            document.getElementById('food').value = '';
+            document.getElementById('other').value = '';
+
+            alert('Expense saved successfully!');
+        });
+
+        // Generate and download monthly report
+        document.getElementById('downloadReport').addEventListener('click', function() {
+            const monthData = getCurrentMonthData();
+            const categoryTotals = getCategoryTotals();
+            const totalExpense = categoryTotals.travel + categoryTotals.food + categoryTotals.other;
+            const avgDailyExpense = monthData.length > 0 ? totalExpense / monthData.length : 0;
+
+            // Create CSV content
+            let csvContent = 'data:text/csv;charset=utf-8,';
+            csvContent += 'Monthly Expense Report - ' + getMonthName(today) + ' ' + today.getFullYear() + '\n\n';
+            csvContent += 'Summary:\n';
+            csvContent += 'Total Expenses,' + formatCurrency(totalExpense) + '\n';
+            csvContent += 'Average Daily Expenses,' + formatCurrency(avgDailyExpense) + '\n';
+            csvContent += 'Travel Expenses,' + formatCurrency(categoryTotals.travel) + '\n';
+            csvContent += 'Food Expenses,' + formatCurrency(categoryTotals.food) + '\n';
+            csvContent += 'Other Expenses,' + formatCurrency(categoryTotals.other) + '\n\n';
+
+            // Add daily breakdown
+            csvContent += 'Daily Breakdown:\n';
+            csvContent += 'Date,Travel,Food,Other,Total\n';
+
+            monthData.forEach(item => {
+                const date = new Date(item.date);
+                const formattedDate = `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`;
+                const travel = parseFloat(item.travel || 0);
+                const food = parseFloat(item.food || 0);
+                const other = parseFloat(item.other || 0);
+                const total = travel + food + other;
+
+                csvContent += `${formattedDate},${travel.toFixed(2)},${food.toFixed(2)},${other.toFixed(2)},${total.toFixed(2)}\n`;
+            });
+
+            // Create download link
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement('a');
+            link.setAttribute('href', encodedUri);
+            link.setAttribute('download', 'Expense_Report_' + getMonthName(today) + '_' + today.getFullYear() + '.csv');
+            document.body.appendChild(link);
+
+            // Trigger download
+            link.click();
+            document.body.removeChild(link);
+        });
+
+        // Initialize app
+        function initApp() {
+            initDailyExpenseChart();
+            initCategoryExpenseChart();
+            initTrendChart();
+            updateAllCharts();
+        }
+
+        // Load app on page load
+        window.addEventListener('load', initApp);
+    </script>
+</body>
+</html>
